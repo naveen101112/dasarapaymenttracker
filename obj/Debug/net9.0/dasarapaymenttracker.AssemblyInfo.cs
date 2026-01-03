@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dasarapaymenttracker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74b173937d20190c9cf36688fa5a51994ea6616b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a813d4e4640f88d27d5982499ff1f72c8f14498")]
 [assembly: System.Reflection.AssemblyProductAttribute("dasarapaymenttracker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dasarapaymenttracker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
