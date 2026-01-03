@@ -1,0 +1,31 @@
+@page
+@model dasarapaymenttracker.Pages.PeersModel
+@{
+    ViewData["Title"] = "Select Peer";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="page-title mb-0">Select Peer</h3>
+    <a class="btn btn-outline-secondary btn-sm" href="/Logout">Logout</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="get" asp-page="/Dashboard" class="row g-3 align-items-end">
+            <div class="col-12 col-md-6">
+                <label class="form-label">Peer</label>
+                <select name="peerId" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    @foreach (var p in Model.Peers)
+                    {
+                        <option value="@p.PeerId">@p.PeerName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Open Dashboard</button>
+            </div>
+        </form>
+    </div>
+</div>
