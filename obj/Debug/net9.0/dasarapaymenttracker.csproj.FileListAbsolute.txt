@@ -184,3 +184,4 @@
 /Users/varshithkarri/Naveen/dasarapaymenttracker/obj/Debug/net9.0/dasarapaymenttracker.pdb
 /Users/varshithkarri/Naveen/dasarapaymenttracker/obj/Debug/net9.0/dasarapaymenttracker.genruntimeconfig.cache
 /Users/varshithkarri/Naveen/dasarapaymenttracker/obj/Debug/net9.0/ref/dasarapaymenttracker.dll
+/Users/varshithkarri/Naveen/dasarapaymenttracker/obj/Debug/net9.0/dasarapaymenttracker.sourcelink.json

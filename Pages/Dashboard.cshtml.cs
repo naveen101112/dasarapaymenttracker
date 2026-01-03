@@ -87,7 +87,7 @@ public class DashboardModel : PageModel
     }
 
     // Handler name used in Dashboard.cshtml: asp-page-handler="TogglePayment"
-    public async Task<IActionResult> OnPostTogglePaymentAsync(int peerId, int personId, int payMonthId, bool newValue)
+    public async Task<IActionResult> OnPostTogglePaymentAsync(int peerId, int personId, int payMonthId, string newValue)
     {
         PeerId = peerId;
 
@@ -108,13 +108,16 @@ public class DashboardModel : PageModel
         }
 
         // Server-side lock enforcement
-        var nowLocal = DateTime.Now;
+        var ist = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist);
+
         if (MonthLockService.IsLocked(nowLocal, month.MonthStartDate))
         {
             Error = "This month is locked (after 15th rule).";
             await LoadGridAsync();
             return Page();
         }
+
 
         var status = await _db.PaymentStatuses
             .FirstOrDefaultAsync(x => x.PersonId == personId && x.PayMonthId == payMonthId);
@@ -126,15 +129,15 @@ public class DashboardModel : PageModel
                 PeerId = peerId,
                 PersonId = personId,
                 PayMonthId = payMonthId,
-                IsPaid = newValue,
-                PaidAt = newValue ? DateTime.UtcNow : null,
+                IsPaid = !string.IsNullOrEmpty(newValue),
+                PaidAt = !string.IsNullOrEmpty(newValue) ? DateTime.UtcNow : null,
                 UpdatedAt = DateTime.UtcNow
             });
         }
         else
         {
-            status.IsPaid = newValue;
-            status.PaidAt = newValue ? DateTime.UtcNow : null;
+            status.IsPaid = !string.IsNullOrEmpty(newValue);
+            status.PaidAt = !string.IsNullOrEmpty(newValue) ? DateTime.UtcNow : null;
             status.UpdatedAt = DateTime.UtcNow;
         }
 
@@ -148,22 +151,37 @@ public class DashboardModel : PageModel
         var peer = await _db.Peers.FirstAsync(p => p.PeerId == PeerId);
         PeerName = peer.PeerName;
 
-        var nowLocal = DateTime.Now;
-        var locked = MonthLockService.LockedMonth(nowLocal);
-        LockedMonthLabel = locked?.ToString("MMM yyyy");
-
         // Months (Oct 2025 - Sep 2026) from DB (seeded)
         var monthsDb = await _db.PayMonths
             .OrderBy(m => m.MonthStartDate)
             .ToListAsync();
+
+        var ist = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kolkata");
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist);
+
+        var (prevLocked, currLocked) = MonthLockService.LockedMonths(nowLocal);
 
         Months = monthsDb.Select(m => new MonthVm
         {
             PayMonthId = m.PayMonthId,
             MonthStartDate = m.MonthStartDate,
             Label = m.MonthStartDate.ToString("MMM yyyy"),
-            IsLocked = locked.HasValue && locked.Value == m.MonthStartDate
+            IsLocked =
+                (prevLocked.HasValue && prevLocked.Value == m.MonthStartDate) ||
+                (currLocked.HasValue && currLocked.Value == m.MonthStartDate),
+            
         }).ToList();
+
+        LockedMonthLabel = (prevLocked, currLocked) switch
+        {
+            (null, null) => null,
+            (var p, var c) when p.HasValue && c.HasValue => $"{p:MMM yyyy} & {c:MMM yyyy}",
+            (var p, null) when p.HasValue => $"{p:MMM yyyy}",
+            (null, var c) when c.HasValue => $"{c:MMM yyyy}",
+            _ => null
+        };
+
+
 
         // People under peer
         var people = await _db.People
@@ -202,4 +220,5 @@ public class DashboardModel : PageModel
             Rows.Add(row);
         }
     }
+
 }

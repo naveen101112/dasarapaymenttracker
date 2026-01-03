@@ -2,12 +2,19 @@ namespace dasarapaymenttracker.Services;
 
 public static class MonthLockService
 {
-    public static DateOnly? LockedMonth(DateTime now)
+    public static (DateOnly? Prev, DateOnly? Curr) LockedMonths(DateTime nowLocal)
     {
-        if (now.Day <= 15) return null;
-        return new DateOnly(now.Year, now.Month, 1).AddMonths(-1);
+        if (nowLocal.Day <= 15) return (null, null);
+
+        var curr = new DateOnly(nowLocal.Year, nowLocal.Month, 1);
+        var prev = curr.AddMonths(-1);
+        return (prev, curr);
     }
 
-    public static bool IsLocked(DateTime now, DateOnly month)
-        => LockedMonth(now) == month;
+    public static bool IsLocked(DateTime nowLocal, DateOnly monthStart)
+    {
+        var (prev, curr) = LockedMonths(nowLocal);
+        return (prev.HasValue && prev.Value == monthStart) ||
+               (curr.HasValue && curr.Value == monthStart);
+    }
 }
