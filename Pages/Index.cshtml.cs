@@ -12,8 +12,8 @@ public class IndexModel : PageModel
         _logger = logger;
     }
 
-    public void OnGet()
+    public async Task<IActionResult> OnGet()
     {
-
+        return RedirectToPage("/Peers");
     }
 }
